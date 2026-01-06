@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Manga Quiz App</title>
+<title>Manga Quiz Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Komika+Axis&display=swap" rel="stylesheet">
 <style>
-    /* --- STYLE GÉNÉRAL --- */
+    /* --- STYLE IDENTIQUE AU PRÉCÉDENT --- */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
         margin: 0; padding: 0; 
@@ -16,35 +16,23 @@
         color: #fff; overflow: hidden;
         display: flex; justify-content: center; align-items: center;
     }
-
-    /* --- SYSTÈME D'ÉCRANS (App Mobile) --- */
     .screen {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        display: none; /* Tout est caché par défaut */
-        flex-direction: column; align-items: center;
-        padding: 20px;
-        overflow-y: auto;
+        display: none; flex-direction: column; align-items: center;
+        padding: 20px; overflow-y: auto;
     }
-    
-    /* La classe .active rend l'écran visible */
     .screen.active { display: flex; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* --- ÉCRAN 1 : LE MENU --- */
-    #menu-screen {
-        background: url('https://wallpapers.com/images/hd/one-piece-phone-j3s367d3635k4591.jpg') center/cover no-repeat;
-    }
-    .menu-overlay {
-        background: rgba(0,0,0,0.8); width: 100%; height: 100%; position: absolute; top:0; left:0; z-index:0;
-    }
+    /* MENU */
+    #menu-screen { background: url('bg-menu.jpg') center/cover no-repeat; background-color: #222; }
+    .menu-overlay { background: rgba(0,0,0,0.85); width: 100%; height: 100%; position: absolute; top:0; left:0; z-index:0; }
     .menu-content { z-index: 1; width: 100%; max-width: 400px; text-align: center; margin-top: 50px;}
-    
     .app-title {
         font-family: 'Bangers'; font-size: 50px; color: #ffcc00;
         -webkit-text-stroke: 2px #000; text-shadow: 4px 4px 0 #ff0055;
         margin-bottom: 30px; line-height: 1; transform: rotate(-3deg);
     }
-
     .quiz-card {
         background: #fff; border: 4px solid #000; 
         margin-bottom: 15px; padding: 10px; border-radius: 10px;
@@ -55,20 +43,16 @@
     .quiz-card h3 { color: #000; margin: 0; font-family: 'Bangers'; font-size: 22px; }
     .quiz-tag { background: #ff0055; color: #fff; padding: 2px 8px; font-size: 12px; border-radius: 4px; display: inline-block; margin-bottom: 5px;}
 
-    /* --- ÉCRAN 2 : LE JEU (Ton design précédent adapté) --- */
-    #game-screen {
-        background: linear-gradient(135deg, #006994 0%, #003366 100%);
-    }
-
-    /* Éléments du jeu simplifiés pour le test */
+    /* JEU */
+    #game-screen { background: linear-gradient(135deg, #006994 0%, #003366 100%); }
     .header-zone { margin-bottom: 20px; text-align: center; width: 100%; max-width: 500px; }
-    .game-title { font-family: 'Bangers'; font-size: 30px; color: #ffcc00; -webkit-text-stroke: 1px #000; }
+    .game-title { font-family: 'Bangers'; font-size: 30px; color: #ffcc00; -webkit-text-stroke: 1px #000; margin-top: 40px; }
     
-    .duel-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 400px; height: 200px; }
+    .duel-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 400px; height: 220px; }
     .card-box { width: 45%; height: 100%; background: #000; border: 3px solid #fff; border-radius: 8px; overflow: hidden; position: relative; }
     .card-img { width: 100%; height: 100%; object-fit: cover; }
     
-    .vs-text { font-family: 'Bangers'; font-size: 40px; color: #ff0055; -webkit-text-stroke: 1px #fff; }
+    .vs-text { font-family: 'Bangers'; font-size: 40px; color: #ff0055; -webkit-text-stroke: 1px #fff; z-index: 10; }
 
     .mystery-overlay { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
@@ -80,16 +64,15 @@
     .btn-next {
         margin-top: 30px; padding: 15px 40px; font-family: 'Bangers'; font-size: 24px;
         background: #ffcc00; border: 3px solid #000; box-shadow: 4px 4px 0 #000;
-        color: #000; display: none; /* Caché tant qu'on n'a pas joué */
+        color: #000; display: none; cursor: pointer;
     }
-
     .btn-back {
-        position: absolute; top: 10px; left: 10px; 
-        background: rgba(0,0,0,0.5); border: 2px solid #fff; color: #fff;
-        padding: 5px 10px; font-family: 'Komika Axis'; font-size: 12px; z-index: 100;
-        cursor: pointer;
+        position: absolute; top: 15px; left: 15px; 
+        background: rgba(0,0,0,0.6); border: 2px solid #fff; color: #fff;
+        padding: 8px 12px; font-family: 'Komika Axis'; font-size: 14px; z-index: 100;
+        cursor: pointer; border-radius: 5px;
     }
-
+    .char-name { font-family: 'Bangers'; font-size: 18px; text-transform: uppercase; margin-top: 5px; text-shadow: 2px 2px 0 #000; }
 </style>
 </head>
 <body>
@@ -98,7 +81,6 @@
         <div class="menu-overlay"></div>
         <div class="menu-content">
             <h1 class="app-title">MANGA<br>QUIZ HUB</h1>
-            
             <div id="quiz-list-container"></div>
         </div>
     </div>
@@ -111,141 +93,216 @@
         </div>
 
         <div class="duel-container">
-            <div class="card-box">
-                <img id="img-left" src="" class="card-img">
+            <div class="card-wrapper" style="width:45%; display:flex; flex-direction:column; align-items:center;">
+                <div class="card-box">
+                    <img id="img-left" src="" class="card-img" onerror="this.src='https://via.placeholder.com/150?text=Erreur+Image'">
+                </div>
+                <div class="char-name" id="name-left">NOM</div>
             </div>
 
             <div class="vs-text">VS</div>
 
-            <div class="card-box" onclick="revealCard()">
-                <img id="img-right" src="" class="card-img">
-                <div class="mystery-overlay" id="overlay-right">
-                    <div class="mystery-text">?</div>
+            <div class="card-wrapper" style="width:45%; display:flex; flex-direction:column; align-items:center;">
+                <div class="card-box" onclick="revealCard()">
+                    <img id="img-right" src="" class="card-img" onerror="this.src='https://via.placeholder.com/150?text=Erreur+Image'">
+                    <div class="mystery-overlay" id="overlay-right">
+                        <div class="mystery-text">?</div>
+                    </div>
                 </div>
+                <div class="char-name" id="name-right">???</div>
             </div>
         </div>
-        
-        <div style="text-align:center; margin-top:10px; font-family:'Bangers'; font-size:20px;">
-            <span id="name-left">...</span> VS <span id="name-right">???</span>
-        </div>
 
-        <button class="btn-next" id="btn-next" onclick="nextRound()">QUESTION SUIVANTE ▶</button>
+        <button class="btn-next" id="btn-next" onclick="nextRound()">SUIVANT ▶</button>
     </div>
 
 <script>
-    // --- 1. LA BASE DE DONNÉES (Le Cerveau) ---
-    // C'est ici que tu ajoutes tes quiz !
-    const ALL_QUIZZES = [
+
+    // ----------------------------------------------------
+    // 1. LA GROSSE LISTE DE PERSONNAGES (DATABASE)
+    // ----------------------------------------------------
+    // C'est ici que tu dois lister tes 50+ fichiers images.
+    // Assure-toi que les noms de fichiers (ex: "luffy.jpg")
+    // correspondent EXACTEMENT à ce que tu upload sur GitHub.
+    // ----------------------------------------------------
+    
+    const OP_POOL = [
+        { name: "Monkey D. Luffy", img: "luffy.jpg" },
+        { name: "Roronoa Zoro", img: "zoro.jpg" },
+        { name: "Nami", img: "nami.jpg" },
+        { name: "Usopp", img: "usopp.jpg" },
+        { name: "Sanji", img: "sanji.jpg" },
+        { name: "Chopper", img: "chopper.jpg" },
+        { name: "Nico Robin", img: "robin.jpg" },
+        { name: "Franky", img: "franky.jpg" },
+        { name: "Brook", img: "brook.jpg" },
+        { name: "Jinbe", img: "jinbe.jpg" },
+        { name: "Trafalgar Law", img: "law.jpg" },
+        { name: "Eustass Kid", img: "kid.jpg" },
+        { name: "Shanks", img: "shanks.jpg" },
+        { name: "Buggy", img: "buggy.jpg" },
+        { name: "Mihawk", img: "mihawk.jpg" },
+        { name: "Crocodile", img: "crocodile.jpg" },
+        { name: "Doflamingo", img: "doflamingo.jpg" },
+        { name: "Boa Hancock", img: "hancock.jpg" },
+        { name: "Whitebeard", img: "whitebeard.jpg" },
+        { name: "Marco", img: "marco.jpg" },
+        { name: "Ace", img: "ace.jpg" },
+        { name: "Sabo", img: "sabo.jpg" },
+        { name: "Blackbeard", img: "blackbeard.jpg" },
+        { name: "Akainu", img: "akainu.jpg" },
+        { name: "Aokiji", img: "kuzan.jpg" },
+        { name: "Kizaru", img: "kizaru.jpg" },
+        { name: "Fujitora", img: "fujitora.jpg" },
+        { name: "Smoker", img: "smoker.jpg" },
+        { name: "Rob Lucci", img: "lucci.jpg" },
+        { name: "Katakuri", img: "katakuri.jpg" },
+        { name: "Big Mom", img: "bigmom.jpg" },
+        { name: "Kaido", img: "kaido.jpg" },
+        { name: "Yamato", img: "yamato.jpg" },
+        { name: "King", img: "king.jpg" },
+        { name: "Queen", img: "queen.jpg" },
+        { name: "Carrot", img: "carrot.jpg" },
+        { name: "Bartolomeo", img: "barto.jpg" },
+        { name: "Cavendish", img: "cavendish.jpg" },
+        { name: "Reiju", img: "reiju.jpg" },
+        { name: "Perona", img: "perona.jpg" },
+        { name: "Enel", img: "enel.jpg" },
+        { name: "Garp", img: "garp.jpg" },
+        { name: "Sengoku", img: "sengoku.jpg" },
+        { name: "Rayleigh", img: "rayleigh.jpg" },
+        { name: "Roger", img: "roger.jpg" }
+    ];
+
+    // Les catégories pour structurer un équipage
+    const CREW_ROLES = ["CAPITAINE", "BRAS DROIT", "NAVIGATEUR", "CUISINIER", "MÉDECIN", "SNIPER", "CHARPENTIER", "MUSICIEN"];
+
+    // ----------------------------------------------------
+    // 2. CONFIGURATION DES QUIZ
+    // ----------------------------------------------------
+    const QUIZ_CONFIG = [
         {
-            id: "op_crew",
-            title: "COMPOSE TON ÉQUIPAGE",
+            id: "op_crew_random",
+            title: "COMPOSE TON ÉQUIPAGE (ALÉATOIRE)",
             tag: "ONE PIECE",
             bg: "linear-gradient(135deg, #006994 0%, #003366 100%)",
-            questions: [
-                { 
-                    title: "CAPITAINE", 
-                    left: { name: "KID", img: "https://i.pinimg.com/736x/8d/8a/cb/8d8acb38644400e2ba643a6d71b80bf8.jpg" }, 
-                    right: { name: "FOXY", img: "https://pm1.aminoapps.com/6370/566113824f8d956f4d048d42d31215b3c2247f0d_hq.jpg" } 
-                },
-                { 
-                    title: "SABREUR", 
-                    left: { name: "ZORO", img: "https://i.pinimg.com/736x/a4/08/96/a4089601d3220a2342544a0447387f3b.jpg" }, 
-                    right: { name: "RAYLEIGH", img: "https://i.pinimg.com/originals/9e/a0/0b/9ea00b396e95841029e248037340b080.jpg" } 
-                }
-            ]
+            mode: "random_pool", // Ce mode déclenche le mélange
+            pool: OP_POOL,
+            roles: CREW_ROLES
         },
         {
-            id: "naruto_power",
-            title: "QUI EST LE PLUS FORT ?",
+            id: "naruto_simple",
+            title: "NARUTO VS (FIXE)",
             tag: "NARUTO",
             bg: "linear-gradient(135deg, #f16913 0%, #d63d09 100%)",
+            mode: "fixed",
             questions: [
-                { 
-                    title: "ROUND 1", 
-                    left: { name: "GAARA", img: "https://i.pinimg.com/564x/04/c2/e2/04c2e27685a2283e3321683900890d70.jpg" }, 
-                    right: { name: "KAKASHI", img: "https://i.pinimg.com/564x/b8/0e/1b/b80e1b2123733056157d605175950854.jpg" } 
-                }
+                 { title: "LE PLUS RAPIDE ?", left: {name:"Minato", img:"minato.jpg"}, right: {name:"Tobirama", img:"tobirama.jpg"} }
             ]
         }
     ];
 
     // Variables globales
-    let currentQuiz = null;
+    let currentQuizConfig = null;
+    let activeQuestions = []; // Contiendra les questions générées
     let currentQuestionIndex = 0;
 
-    // --- 2. INITIALISATION DU MENU ---
+    // --- INITIALISATION DU MENU ---
     const menuContainer = document.getElementById('quiz-list-container');
     
-    ALL_QUIZZES.forEach(quiz => {
+    QUIZ_CONFIG.forEach(quiz => {
         const btn = document.createElement('div');
         btn.className = 'quiz-card';
-        btn.innerHTML = `
-            <span class="quiz-tag">${quiz.tag}</span>
-            <h3>${quiz.title}</h3>
-        `;
-        btn.onclick = () => launchQuiz(quiz.id);
+        btn.innerHTML = `<span class="quiz-tag">${quiz.tag}</span><h3>${quiz.title}</h3>`;
+        btn.onclick = () => startQuiz(quiz.id);
         menuContainer.appendChild(btn);
     });
 
-    // --- 3. FONCTIONS DE NAVIGATION ---
+    // --- NAVIGATION ---
     function showScreen(screenId) {
-        // Cache tous les écrans
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        // Affiche celui qu'on veut
         document.getElementById(screenId).classList.add('active');
     }
 
-    function launchQuiz(quizId) {
-        // 1. Trouver les données
-        currentQuiz = ALL_QUIZZES.find(q => q.id === quizId);
+    // --- FONCTION MAGIQUE : MÉLANGEUR ---
+    // C'est ça qui rend le jeu unique à chaque fois
+    function generateRandomQuestions(pool, roles) {
+        // 1. On copie la liste pour ne pas abîmer l'originale
+        let tempPool = [...pool];
+        
+        // 2. On mélange (Shuffle)
+        tempPool.sort(() => Math.random() - 0.5);
+        
+        let questions = [];
+        
+        // 3. On crée les duels en fonction des rôles
+        // On a besoin de 2 persos par rôle
+        for (let i = 0; i < roles.length; i++) {
+            // S'il n'y a plus assez de persos, on arrête
+            if (tempPool.length < 2) break;
+
+            const char1 = tempPool.pop(); // On prend le dernier et on l'enlève de la liste
+            const char2 = tempPool.pop(); // On prend l'avant-dernier
+
+            questions.push({
+                title: roles[i],
+                left: char1,
+                right: char2
+            });
+        }
+        return questions;
+    }
+
+    function startQuiz(quizId) {
+        currentQuizConfig = QUIZ_CONFIG.find(q => q.id === quizId);
         currentQuestionIndex = 0;
-        
-        // 2. Appliquer le décor
-        document.getElementById('game-screen').style.background = currentQuiz.bg;
-        
-        // 3. Charger la première question
+        document.getElementById('game-screen').style.background = currentQuizConfig.bg;
+
+        // LOGIQUE DE GÉNÉRATION
+        if (currentQuizConfig.mode === "random_pool") {
+            // Si c'est le mode aléatoire, on génère les questions maintenant
+            activeQuestions = generateRandomQuestions(currentQuizConfig.pool, currentQuizConfig.roles);
+        } else {
+            // Sinon on prend les questions fixes
+            activeQuestions = currentQuizConfig.questions;
+        }
+
         loadQuestion();
-        
-        // 4. Changer d'écran
         showScreen('game-screen');
     }
 
-    // --- 4. LOGIQUE DU JEU ---
     function loadQuestion() {
-        // Réinitialiser l'état (cacher la réponse)
+        // Reset UI
         document.getElementById('overlay-right').style.display = 'flex';
         document.getElementById('btn-next').style.display = 'none';
         document.getElementById('name-right').innerText = "???";
+        document.getElementById('name-right').style.opacity = "0.5";
 
-        // Si on a fini le quiz
-        if (currentQuestionIndex >= currentQuiz.questions.length) {
-            alert("Quiz terminé ! Retour au menu."); // Version simple pour le test
+        if (currentQuestionIndex >= activeQuestions.length) {
+            // Fin du jeu
+            alert("Équipage complet !");
             showScreen('menu-screen');
             return;
         }
 
-        const data = currentQuiz.questions[currentQuestionIndex];
+        const data = activeQuestions[currentQuestionIndex];
 
-        // Remplir les textes et images
+        // Affichage
         document.getElementById('roundTitle').innerText = data.title;
         
         document.getElementById('img-left').src = data.left.img;
         document.getElementById('name-left').innerText = data.left.name;
         
         document.getElementById('img-right').src = data.right.img;
-        // On stocke le vrai nom pour plus tard
+        // Stockage du nom caché
         document.getElementById('game-screen').dataset.hiddenName = data.right.name;
     }
 
     function revealCard() {
-        // 1. Cacher le point d'interrogation
         document.getElementById('overlay-right').style.display = 'none';
-        
-        // 2. Afficher le nom
         const realName = document.getElementById('game-screen').dataset.hiddenName;
         document.getElementById('name-right').innerText = realName;
-        
-        // 3. Afficher le bouton suivant
+        document.getElementById('name-right').style.opacity = "1";
         document.getElementById('btn-next').style.display = 'block';
     }
 
