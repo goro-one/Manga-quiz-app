@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Manga Quiz App</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Komika+Axis&display=swap" rel="stylesheet">
+<style>
+    /* --- STYLE GÉNÉRAL --- */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        margin: 0; padding: 0; 
+        background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+        height: 100vh; width: 100vw; 
+        font-family: 'Komika Axis', sans-serif; 
+        color: #fff; overflow: hidden;
+        display: flex; justify-content: center; align-items: center;
+    }
+
+    /* --- SYSTÈME D'ÉCRANS (App Mobile) --- */
+    .screen {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        display: none; /* Tout est caché par défaut */
+        flex-direction: column; align-items: center;
+        padding: 20px;
+        overflow-y: auto;
+    }
+    
+    /* La classe .active rend l'écran visible */
+    .screen.active { display: flex; animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* --- ÉCRAN 1 : LE MENU --- */
+    #menu-screen {
+        background: url('https://wallpapers.com/images/hd/one-piece-phone-j3s367d3635k4591.jpg') center/cover no-repeat;
+    }
+    .menu-overlay {
+        background: rgba(0,0,0,0.8); width: 100%; height: 100%; position: absolute; top:0; left:0; z-index:0;
+    }
+    .menu-content { z-index: 1; width: 100%; max-width: 400px; text-align: center; margin-top: 50px;}
+    
+    .app-title {
+        font-family: 'Bangers'; font-size: 50px; color: #ffcc00;
+        -webkit-text-stroke: 2px #000; text-shadow: 4px 4px 0 #ff0055;
+        margin-bottom: 30px; line-height: 1; transform: rotate(-3deg);
+    }
+
+    .quiz-card {
+        background: #fff; border: 4px solid #000; 
+        margin-bottom: 15px; padding: 10px; border-radius: 10px;
+        box-shadow: 5px 5px 0 #000; transform: skew(-3deg);
+        cursor: pointer; transition: transform 0.1s;
+    }
+    .quiz-card:active { transform: skew(-3deg) scale(0.95); }
+    .quiz-card h3 { color: #000; margin: 0; font-family: 'Bangers'; font-size: 22px; }
+    .quiz-tag { background: #ff0055; color: #fff; padding: 2px 8px; font-size: 12px; border-radius: 4px; display: inline-block; margin-bottom: 5px;}
+
+    /* --- ÉCRAN 2 : LE JEU (Ton design précédent adapté) --- */
+    #game-screen {
+        background: linear-gradient(135deg, #006994 0%, #003366 100%);
+    }
+
+    /* Éléments du jeu simplifiés pour le test */
+    .header-zone { margin-bottom: 20px; text-align: center; width: 100%; max-width: 500px; }
+    .game-title { font-family: 'Bangers'; font-size: 30px; color: #ffcc00; -webkit-text-stroke: 1px #000; }
+    
+    .duel-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 400px; height: 200px; }
+    .card-box { width: 45%; height: 100%; background: #000; border: 3px solid #fff; border-radius: 8px; overflow: hidden; position: relative; }
+    .card-img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .vs-text { font-family: 'Bangers'; font-size: 40px; color: #ff0055; -webkit-text-stroke: 1px #fff; }
+
+    .mystery-overlay { 
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+        background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px);
+        display: flex; justify-content: center; align-items: center; cursor: pointer;
+    }
+    .mystery-text { font-family: 'Bangers'; font-size: 50px; }
+    
+    .btn-next {
+        margin-top: 30px; padding: 15px 40px; font-family: 'Bangers'; font-size: 24px;
+        background: #ffcc00; border: 3px solid #000; box-shadow: 4px 4px 0 #000;
+        color: #000; display: none; /* Caché tant qu'on n'a pas joué */
+    }
+
+    .btn-back {
+        position: absolute; top: 10px; left: 10px; 
+        background: rgba(0,0,0,0.5); border: 2px solid #fff; color: #fff;
+        padding: 5px 10px; font-family: 'Komika Axis'; font-size: 12px; z-index: 100;
+        cursor: pointer;
+    }
+
+</style>
+</head>
+<body>
+
+    <div id="menu-screen" class="screen active">
+        <div class="menu-overlay"></div>
+        <div class="menu-content">
+            <h1 class="app-title">MANGA<br>QUIZ HUB</h1>
+            
+            <div id="quiz-list-container"></div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <button class="btn-back" onclick="showScreen('menu-screen')">⬅ MENU</button>
+
+        <div class="header-zone">
+            <div class="game-title" id="roundTitle">ROUND 1</div>
+        </div>
+
+        <div class="duel-container">
+            <div class="card-box">
+                <img id="img-left" src="" class="card-img">
+            </div>
+
+            <div class="vs-text">VS</div>
+
+            <div class="card-box" onclick="revealCard()">
+                <img id="img-right" src="" class="card-img">
+                <div class="mystery-overlay" id="overlay-right">
+                    <div class="mystery-text">?</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align:center; margin-top:10px; font-family:'Bangers'; font-size:20px;">
+            <span id="name-left">...</span> VS <span id="name-right">???</span>
+        </div>
+
+        <button class="btn-next" id="btn-next" onclick="nextRound()">QUESTION SUIVANTE ▶</button>
+    </div>
+
+<script>
+    // --- 1. LA BASE DE DONNÉES (Le Cerveau) ---
+    // C'est ici que tu ajoutes tes quiz !
+    const ALL_QUIZZES = [
+        {
+            id: "op_crew",
+            title: "COMPOSE TON ÉQUIPAGE",
+            tag: "ONE PIECE",
+            bg: "linear-gradient(135deg, #006994 0%, #003366 100%)",
+            questions: [
+                { 
+                    title: "CAPITAINE", 
+                    left: { name: "KID", img: "https://i.pinimg.com/736x/8d/8a/cb/8d8acb38644400e2ba643a6d71b80bf8.jpg" }, 
+                    right: { name: "FOXY", img: "https://pm1.aminoapps.com/6370/566113824f8d956f4d048d42d31215b3c2247f0d_hq.jpg" } 
+                },
+                { 
+                    title: "SABREUR", 
+                    left: { name: "ZORO", img: "https://i.pinimg.com/736x/a4/08/96/a4089601d3220a2342544a0447387f3b.jpg" }, 
+                    right: { name: "RAYLEIGH", img: "https://i.pinimg.com/originals/9e/a0/0b/9ea00b396e95841029e248037340b080.jpg" } 
+                }
+            ]
+        },
+        {
+            id: "naruto_power",
+            title: "QUI EST LE PLUS FORT ?",
+            tag: "NARUTO",
+            bg: "linear-gradient(135deg, #f16913 0%, #d63d09 100%)",
+            questions: [
+                { 
+                    title: "ROUND 1", 
+                    left: { name: "GAARA", img: "https://i.pinimg.com/564x/04/c2/e2/04c2e27685a2283e3321683900890d70.jpg" }, 
+                    right: { name: "KAKASHI", img: "https://i.pinimg.com/564x/b8/0e/1b/b80e1b2123733056157d605175950854.jpg" } 
+                }
+            ]
+        }
+    ];
+
+    // Variables globales
+    let currentQuiz = null;
+    let currentQuestionIndex = 0;
+
+    // --- 2. INITIALISATION DU MENU ---
+    const menuContainer = document.getElementById('quiz-list-container');
+    
+    ALL_QUIZZES.forEach(quiz => {
+        const btn = document.createElement('div');
+        btn.className = 'quiz-card';
+        btn.innerHTML = `
+            <span class="quiz-tag">${quiz.tag}</span>
+            <h3>${quiz.title}</h3>
+        `;
+        btn.onclick = () => launchQuiz(quiz.id);
+        menuContainer.appendChild(btn);
+    });
+
+    // --- 3. FONCTIONS DE NAVIGATION ---
+    function showScreen(screenId) {
+        // Cache tous les écrans
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        // Affiche celui qu'on veut
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function launchQuiz(quizId) {
+        // 1. Trouver les données
+        currentQuiz = ALL_QUIZZES.find(q => q.id === quizId);
+        currentQuestionIndex = 0;
+        
+        // 2. Appliquer le décor
+        document.getElementById('game-screen').style.background = currentQuiz.bg;
+        
+        // 3. Charger la première question
+        loadQuestion();
+        
+        // 4. Changer d'écran
+        showScreen('game-screen');
+    }
+
+    // --- 4. LOGIQUE DU JEU ---
+    function loadQuestion() {
+        // Réinitialiser l'état (cacher la réponse)
+        document.getElementById('overlay-right').style.display = 'flex';
+        document.getElementById('btn-next').style.display = 'none';
+        document.getElementById('name-right').innerText = "???";
+
+        // Si on a fini le quiz
+        if (currentQuestionIndex >= currentQuiz.questions.length) {
+            alert("Quiz terminé ! Retour au menu."); // Version simple pour le test
+            showScreen('menu-screen');
+            return;
+        }
+
+        const data = currentQuiz.questions[currentQuestionIndex];
+
+        // Remplir les textes et images
+        document.getElementById('roundTitle').innerText = data.title;
+        
+        document.getElementById('img-left').src = data.left.img;
+        document.getElementById('name-left').innerText = data.left.name;
+        
+        document.getElementById('img-right').src = data.right.img;
+        // On stocke le vrai nom pour plus tard
+        document.getElementById('game-screen').dataset.hiddenName = data.right.name;
+    }
+
+    function revealCard() {
+        // 1. Cacher le point d'interrogation
+        document.getElementById('overlay-right').style.display = 'none';
+        
+        // 2. Afficher le nom
+        const realName = document.getElementById('game-screen').dataset.hiddenName;
+        document.getElementById('name-right').innerText = realName;
+        
+        // 3. Afficher le bouton suivant
+        document.getElementById('btn-next').style.display = 'block';
+    }
+
+    function nextRound() {
+        currentQuestionIndex++;
+        loadQuestion();
+    }
+
+</script>
+</body>
+</html>
