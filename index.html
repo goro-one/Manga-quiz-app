@@ -34,12 +34,15 @@
     .btn-retry { background: #fff; color: #000; margin-right: 10px; display: inline-block; width: auto; }
     .btn-reveal { background: #ff0055; color: #fff; display: inline-block; width: auto; }
 
-    /* DUEL */
+    /* DUEL & FLOU */
     #mode-duel { display: none; width: 100%; flex-direction: column; align-items: center; }
     .duel-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 400px; height: 220px; margin-top: 20px;}
     .card-wrapper { width: 45%; height: 100%; display: flex; flex-direction: column; align-items: center; }
     .card-box { width: 100%; height: 100%; background: #000; border: 3px solid #fff; border-radius: 8px; overflow: hidden; position: relative; }
-    .card-img { width: 100%; height: 100%; object-fit: cover; }
+    .card-img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.5s; }
+    /* Classe spéciale pour le mode flou */
+    .blur-effect { filter: blur(10px) grayscale(50%); transform: scale(1.1); }
+    
     .vs-text { font-family: 'Bangers'; font-size: 40px; color: #ff0055; -webkit-text-stroke: 1px #fff; z-index: 10; }
     .mystery-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px); display: flex; justify-content: center; align-items: center; cursor: pointer; }
     .char-name { font-family: 'Bangers'; font-size: 18px; text-transform: uppercase; margin-top: 5px; text-shadow: 2px 2px 0 #000; }
@@ -55,73 +58,132 @@
 </style>
 </head>
 <body>
-    <script src="data.js"></script>
+    <script>const QUIZ_CONFIG = [];</script>
 
+    <script src="quizzes/quiz-duel.js"></script>
+    <script src="quizzes/quiz-emoji.js"></script>
+    <script src="quizzes/quiz-flou.js"></script>
+    
     <div id="menu-screen" class="screen active"><div class="menu-overlay"></div><div class="menu-content"><h1 class="app-title">MANGA<br>QUIZ HUB</h1><div id="quiz-list-container"></div></div></div>
     <div id="game-screen" class="screen"><button class="btn-back" onclick="showScreen('menu-screen')">⬅ MENU</button><div class="header-zone"><div class="game-title" id="roundTitle">ROUND 1</div></div>
-        <div id="mode-duel"><div class="duel-container"><div class="card-wrapper"><div class="card-box"><img id="img-left" src="" class="card-img" onerror="this.src='https://placehold.co/200x300?text=IMG+MISSING'"></div><div class="char-name" id="name-left">NOM</div></div><div class="vs-text">VS</div><div class="card-wrapper"><div class="card-box" onclick="revealCard()"><img id="img-right" src="" class="card-img" onerror="this.src='https://placehold.co/200x300?text=IMG+MISSING'"><div class="mystery-overlay" id="overlay-right"><div class="mystery-text">?</div></div></div><div class="char-name" id="name-right">???</div></div></div><button class="btn-action btn-next" id="btn-next-duel" onclick="nextRound()">SUIVANT ▶</button></div>
+        
+        <div id="mode-duel">
+            <div class="duel-container">
+                <div class="card-wrapper" id="zone-left"><div class="card-box"><img id="img-left" src="" class="card-img" onerror="this.src='https://placehold.co/200x300?text=IMG+MISSING'"></div><div class="char-name" id="name-left">NOM</div></div>
+                <div class="vs-text" id="vs-symbol">VS</div>
+                <div class="card-wrapper" id="zone-right"><div class="card-box" onclick="revealCard()"><img id="img-right" src="" class="card-img" onerror="this.src='https://placehold.co/200x300?text=IMG+MISSING'"><div class="mystery-overlay" id="overlay-right"><div class="mystery-text">?</div></div></div><div class="char-name" id="name-right">???</div></div>
+            </div>
+            <button class="btn-action btn-next" id="btn-next-duel" onclick="nextRound()">SUIVANT ▶</button>
+        </div>
+
         <div id="mode-emoji"><div class="emoji-display" id="emoji-text">???</div><input type="text" id="user-input" class="input-box" placeholder="C'est qui ?"><div id="emoji-buttons"><button class="btn-action btn-next" id="btn-validate" style="display:block; width:100%;" onclick="checkEmojiAnswer()">VALIDER</button></div><div id="feedback-area" style="text-align:center; width: 100%;"><div class="feedback-msg" id="msg-correct">✅ BONNE RÉPONSE !</div><div class="feedback-msg" id="msg-wrong">❌ MAUVAISE RÉPONSE...</div><div class="solution-text" id="solution-display">C'ÉTAIT : ...</div><div id="retry-buttons" style="display:none; justify-content:center; margin-top:10px;"><button class="btn-action btn-retry" onclick="resetEmojiInput()">RÉESSAYER</button><button class="btn-action btn-reveal" onclick="showEmojiSolution()">RÉPONSE</button></div><button class="btn-action btn-next" id="btn-next-emoji" onclick="nextRound()">QUESTION SUIVANTE ▶</button></div></div>
     </div>
 
 <script>
-    let currentQuizConfig = null; let activeQuestions = []; let currentQuestionIndex = 0;
-    
-    // CHARGEMENT AUTOMATIQUE VIA data.js
-    const menuContainer = document.getElementById('quiz-list-container');
-    if(typeof QUIZ_CONFIG !== 'undefined') {
+    // --- LOGIQUE GÉNÉRALE ---
+    let currentQuiz = null; let activeQuestions = []; let qIndex = 0;
+
+    // CHARGEMENT MENU
+    const menu = document.getElementById('quiz-list-container');
+    window.onload = () => {
+        if(QUIZ_CONFIG.length === 0) { menu.innerHTML = "<p>Aucun quiz trouvé. Vérifie le dossier quizzes/</p>"; return; }
         QUIZ_CONFIG.forEach(quiz => {
-            const btn = document.createElement('div');
-            btn.className = 'quiz-card';
-            btn.innerHTML = `<div style="display:flex; align-items:center;"><span class="quiz-icon">${quiz.icon}</span><div class="quiz-info"><span class="quiz-tag">${quiz.type === 'emoji' ? 'QUIZ TEXTE' : 'VISUEL'}</span><h3>${quiz.title}</h3></div></div><div style="font-size:24px;">▶</div>`;
-            btn.onclick = () => startQuiz(quiz.id);
-            menuContainer.appendChild(btn);
+            const btn = document.createElement('div'); btn.className = 'quiz-card';
+            btn.innerHTML = `<div style="display:flex; align-items:center;"><span class="quiz-icon">${quiz.icon}</span><div class="quiz-info"><span class="quiz-tag">${quiz.tag || 'QUIZ'}</span><h3>${quiz.title}</h3></div></div><div style="font-size:24px;">▶</div>`;
+            btn.onclick = () => startQuiz(quiz.id); menu.appendChild(btn);
         });
-    } else { menuContainer.innerHTML = "<p>Erreur: Fichier data.js introuvable ou incomplet.</p>"; }
+    };
 
-    function showScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
-    function generateRandomDuels(pool, roles) { let tempPool = [...pool].sort(() => Math.random() - 0.5); let questions = []; for (let i = 0; i < roles.length; i++) { if (tempPool.length < 2) break; questions.push({ title: roles[i], left: tempPool.pop(), right: tempPool.pop() }); } return questions; }
-    function generateRandomEmojis(pool, count) { let tempPool = [...pool].sort(() => Math.random() - 0.5); return tempPool.slice(0, count); }
-
-    function startQuiz(quizId) {
-        currentQuizConfig = QUIZ_CONFIG.find(q => q.id === quizId);
-        currentQuestionIndex = 0;
-        document.getElementById('game-screen').style.background = currentQuizConfig.bg;
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    
+    // START
+    function startQuiz(id) {
+        currentQuiz = QUIZ_CONFIG.find(q => q.id === id); qIndex = 0;
+        document.getElementById('game-screen').style.background = currentQuiz.bg;
         document.getElementById('mode-duel').style.display = "none";
         document.getElementById('mode-emoji').style.display = "none";
-        if (currentQuizConfig.type === "duel") { document.getElementById('mode-duel').style.display = "flex"; activeQuestions = generateRandomDuels(currentQuizConfig.pool, currentQuizConfig.roles); } 
-        else if (currentQuizConfig.type === "emoji") { document.getElementById('mode-emoji').style.display = "flex"; activeQuestions = generateRandomEmojis(currentQuizConfig.pool, currentQuizConfig.questionCount); }
+
+        // GÉNÉRATION QUESTIONS
+        let pool = [...currentQuiz.pool].sort(() => Math.random() - 0.5);
+        
+        if (currentQuiz.type === "duel" || currentQuiz.type === "blur") {
+            // Mode Duel / Flou : on crée des paires
+            activeQuestions = [];
+            const roles = currentQuiz.roles || ["ROUND"];
+            for (let i = 0; i < roles.length; i++) {
+                if (pool.length < 2) break;
+                activeQuestions.push({ title: roles[i], left: pool.pop(), right: pool.pop() });
+            }
+            document.getElementById('mode-duel').style.display = "flex";
+            
+        } else if (currentQuiz.type === "emoji") {
+            // Mode Emoji : on prend une liste
+            activeQuestions = pool.slice(0, currentQuiz.count || 5);
+            document.getElementById('mode-emoji').style.display = "flex";
+        }
+        
         loadQuestion(); showScreen('game-screen');
     }
 
     function loadQuestion() {
-        if (currentQuestionIndex >= activeQuestions.length) { alert("Quiz Terminé !"); showScreen('menu-screen'); return; }
-        const data = activeQuestions[currentQuestionIndex];
-        document.getElementById('roundTitle').innerText = (currentQuizConfig.type === "duel") ? data.title : `QUESTION ${currentQuestionIndex + 1} / ${activeQuestions.length}`;
-        if (currentQuizConfig.type === "duel") loadDuel(data); else loadEmoji(data);
+        if (qIndex >= activeQuestions.length) { alert("Terminé !"); showScreen('menu-screen'); return; }
+        const data = activeQuestions[qIndex];
+        
+        // TITRE
+        let title = (currentQuiz.type === "emoji") ? `QUESTION ${qIndex+1}` : data.title;
+        document.getElementById('roundTitle').innerText = title;
+
+        if (currentQuiz.type === "emoji") { loadEmoji(data); } 
+        else { loadDuel(data); }
     }
 
+    // --- LOGIQUE DUEL & FLOU ---
     function loadDuel(data) {
         document.getElementById('overlay-right').style.display = 'flex'; document.getElementById('btn-next-duel').style.display = 'none';
-        document.getElementById('img-left').src = data.left.img; document.getElementById('name-left').innerText = data.left.name;
-        document.getElementById('img-right').src = data.right.img; document.getElementById('name-right').innerText = "???"; document.getElementById('name-right').style.opacity = "0.5";
+        
+        const imgL = document.getElementById('img-left');
+        const imgR = document.getElementById('img-right');
+        
+        imgL.src = data.left.img; document.getElementById('name-left').innerText = data.left.name;
+        imgR.src = data.right.img; document.getElementById('name-right').innerText = "???"; document.getElementById('name-right').style.opacity = "0.5";
         document.getElementById('game-screen').dataset.hiddenName = data.right.name;
-    }
-    function revealCard() { document.getElementById('overlay-right').style.display = 'none'; document.getElementById('name-right').innerText = document.getElementById('game-screen').dataset.hiddenName; document.getElementById('name-right').style.opacity = "1"; document.getElementById('btn-next-duel').style.display = 'block'; }
 
+        // GESTION DU FLOU
+        imgL.classList.remove('blur-effect'); imgR.classList.remove('blur-effect');
+        if (currentQuiz.type === "blur") {
+             // En mode flou, on cache la partie gauche (ou on l'utilise différemment)
+             // Ici, on va flouter l'image de droite sous le cache, et celle de gauche visible
+             imgL.classList.add('blur-effect');
+             imgR.classList.add('blur-effect');
+        }
+    }
+    function revealCard() { 
+        document.getElementById('overlay-right').style.display = 'none'; 
+        document.getElementById('name-right').innerText = document.getElementById('game-screen').dataset.hiddenName; 
+        document.getElementById('name-right').style.opacity = "1"; 
+        
+        // On enlève le flou à la révélation
+        if (currentQuiz.type === "blur") { document.getElementById('img-right').classList.remove('blur-effect'); }
+        
+        document.getElementById('btn-next-duel').style.display = 'block'; 
+    }
+
+    // --- LOGIQUE EMOJI ---
     function loadEmoji(data) {
         document.getElementById('emoji-text').innerText = data.emojis;
         const input = document.getElementById('user-input'); input.value = ""; input.disabled = false;
         document.getElementById('msg-correct').style.display = "none"; document.getElementById('msg-wrong').style.display = "none"; document.getElementById('solution-display').style.display = "none"; document.getElementById('retry-buttons').style.display = "none"; document.getElementById('btn-next-emoji').style.display = "none"; document.getElementById('btn-validate').style.display = "block";
     }
     function checkEmojiAnswer() {
-        const input = document.getElementById('user-input'); const userVal = input.value.trim().toLowerCase(); const currentData = activeQuestions[currentQuestionIndex];
+        const input = document.getElementById('user-input'); const userVal = input.value.trim().toLowerCase(); const currentData = activeQuestions[qIndex];
         document.getElementById('btn-validate').style.display = "none";
         if (currentData.answers.includes(userVal)) { document.getElementById('msg-correct').style.display = "block"; input.disabled = true; document.getElementById('btn-next-emoji').style.display = "block"; } 
         else { document.getElementById('msg-wrong').style.display = "block"; document.getElementById('retry-buttons').style.display = "flex"; }
     }
     function resetEmojiInput() { document.getElementById('msg-wrong').style.display = "none"; document.getElementById('retry-buttons').style.display = "none"; document.getElementById('btn-validate').style.display = "block"; const input = document.getElementById('user-input'); input.value = ""; input.focus(); }
-    function showEmojiSolution() { const currentData = activeQuestions[currentQuestionIndex]; document.getElementById('msg-wrong').style.display = "none"; document.getElementById('retry-buttons').style.display = "none"; const solDiv = document.getElementById('solution-display'); solDiv.innerText = "LA RÉPONSE ÉTAIT : " + currentData.answers[0].toUpperCase(); solDiv.style.display = "block"; document.getElementById('user-input').disabled = true; document.getElementById('btn-next-emoji').style.display = "block"; }
-    function nextRound() { currentQuestionIndex++; loadQuestion(); }
+    function showEmojiSolution() { const currentData = activeQuestions[qIndex]; document.getElementById('msg-wrong').style.display = "none"; document.getElementById('retry-buttons').style.display = "none"; const solDiv = document.getElementById('solution-display'); solDiv.innerText = "LA RÉPONSE ÉTAIT : " + currentData.answers[0].toUpperCase(); solDiv.style.display = "block"; document.getElementById('user-input').disabled = true; document.getElementById('btn-next-emoji').style.display = "block"; }
+    
+    function nextRound() { qIndex++; loadQuestion(); }
 </script>
 </body>
 </html>
