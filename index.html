@@ -5,354 +5,311 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>AniQuiz</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Bangers&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Bangers&family=Komika+Axis&display=swap" rel="stylesheet">
 <style>
-    /* --- 1. DESIGN APP MODERNE (Inspiré de tes photos) --- */
+    /* --- DESIGN APP GLOBAL --- */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-    body { 
-        margin: 0; padding: 0; 
-        background-color: #0f0f13; /* Fond très sombre comme l'image */
-        height: 100vh; width: 100vw; 
-        font-family: 'Poppins', sans-serif; 
-        color: #fff; overflow: hidden;
-        display: flex; flex-direction: column;
-    }
+    body { margin: 0; padding: 0; background-color: #0f0f13; height: 100vh; width: 100vw; font-family: 'Poppins', sans-serif; color: #fff; overflow: hidden; display: flex; flex-direction: column; }
 
-    /* --- GESTION DES ÉCRANS --- */
-    .screen { 
-        flex: 1; /* Prend tout l'espace sauf le menu */
-        width: 100%; 
-        display: none; 
-        flex-direction: column; 
-        overflow-y: auto; /* Permet de scroller le contenu */
-        padding: 20px;
-        padding-bottom: 80px; /* Espace pour ne pas cacher le contenu derrière le menu */
-    }
+    /* ECRANS */
+    .screen { flex: 1; width: 100%; display: none; flex-direction: column; overflow-y: auto; padding: 20px; padding-bottom: 80px; }
     .screen.active { display: flex; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* --- BARRE DE NAVIGATION (MENU BAS) --- */
-    .bottom-nav {
-        position: fixed; bottom: 0; left: 0; width: 100%;
-        height: 70px;
-        background-color: #1a1a20;
-        border-top: 1px solid #333;
-        display: flex; justify-content: space-around; align-items: center;
-        z-index: 1000;
-        padding-bottom: 10px; /* Pour les iPhone récents */
-    }
-    .nav-item {
-        color: #666;
-        text-align: center;
-        font-size: 12px;
-        cursor: pointer;
-        transition: color 0.3s;
-        display: flex; flex-direction: column; align-items: center; gap: 5px;
-    }
+    /* MENU BAS */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background-color: #1a1a20; border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 10px; }
+    .nav-item { color: #666; text-align: center; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
     .nav-item i { font-size: 24px; }
-    .nav-item.active { color: #a855f7; } /* Couleur violette de ton image */
+    .nav-item.active { color: #a855f7; }
 
-    /* --- TITRES & TEXTES --- */
-    h1, h2, h3 { margin: 0; }
-    .header-app {
-        padding: 20px 0;
-        display: flex; align-items: center; gap: 15px;
-    }
-    .user-avatar-mini {
-        width: 50px; height: 50px; border-radius: 50%;
-        background: #333; border: 2px solid #a855f7;
-        object-fit: cover;
-    }
-    .greeting { font-size: 14px; color: #aaa; }
-    .username-display { font-size: 18px; font-weight: 700; color: #fff; }
-
-    /* --- GRILLE DES QUIZ (DASHBOARD) --- */
-    .quiz-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr; /* 2 colonnes */
-        gap: 15px;
-        margin-top: 20px;
-    }
-    .dashboard-card {
-        background: #1e1e24;
-        border-radius: 20px;
-        padding: 15px;
-        height: 160px;
-        display: flex; flex-direction: column; justify-content: space-between;
-        position: relative; overflow: hidden;
-        cursor: pointer;
-        transition: transform 0.1s;
-    }
+    /* DASHBOARD */
+    .header-app { padding: 20px 0; display: flex; align-items: center; gap: 15px; }
+    .user-avatar-mini { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #a855f7; }
+    .quiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+    .dashboard-card { background: #1e1e24; border-radius: 20px; padding: 15px; height: 160px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.1s; }
     .dashboard-card:active { transform: scale(0.98); }
-    
-    /* Couleurs dégradées comme sur l'image */
     .card-purple { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
     .card-pink { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); }
     .card-blue { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); }
-    .card-orange { background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); }
-
     .card-title { font-weight: 700; font-size: 16px; color: #fff; z-index: 2; }
-    .card-icon { 
-        font-size: 60px; color: rgba(255,255,255,0.2); 
-        position: absolute; bottom: -10px; right: -10px; 
-        transform: rotate(-15deg);
-    }
+    .card-icon { font-size: 60px; color: rgba(255,255,255,0.2); position: absolute; bottom: -10px; right: -10px; transform: rotate(-15deg); }
 
-    /* --- ÉCRAN LOGIN / SIGNUP --- */
-    .auth-container {
-        display: flex; flex-direction: column; justify-content: center; height: 100%;
-        text-align: center;
-    }
+    /* LOGIN */
+    .auth-container { display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center; }
     .auth-logo { font-family: 'Bangers'; font-size: 50px; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; color: transparent; margin-bottom: 40px; }
-    .input-field {
-        background: #1e1e24; border: 1px solid #333; color: #fff;
-        padding: 15px; border-radius: 12px; margin-bottom: 15px;
-        width: 100%; font-family: 'Poppins';
-    }
-    .btn-gradient {
-        background: linear-gradient(90deg, #a855f7, #ec4899);
-        border: none; color: #fff; padding: 15px; border-radius: 12px;
-        font-weight: 700; font-size: 16px; cursor: pointer;
-        width: 100%; margin-top: 10px;
-    }
-    .avatar-selector {
-        display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;
-    }
-    .avatar-option {
-        width: 60px; height: 60px; border-radius: 50%; border: 3px solid transparent; cursor: pointer;
-    }
+    .input-field { background: #1e1e24; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; width: 100%; font-family: 'Poppins'; }
+    .btn-gradient { background: linear-gradient(90deg, #a855f7, #ec4899); border: none; color: #fff; padding: 15px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; }
+    .avatar-selector { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+    .avatar-option { width: 60px; height: 60px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; object-fit: cover; }
     .avatar-option.selected { border-color: #a855f7; }
 
-    /* --- ÉCRAN PROFIL --- */
-    .profile-header {
-        background: #1e1e24; padding: 30px; border-radius: 20px;
-        text-align: center; margin-bottom: 20px;
-    }
-    .profile-pic-large {
-        width: 100px; height: 100px; border-radius: 50%;
-        border: 4px solid #a855f7; margin-bottom: 10px;
-    }
-
-    /* --- MOTEUR DE JEU (Adapté pour s'intégrer) --- */
-    .game-container { height: 100%; display: flex; flex-direction: column; }
-    .game-image-box { 
-        width: 100%; height: 250px; background: #000; border-radius: 15px; 
-        overflow: hidden; margin: 20px 0; border: 2px solid #333; position: relative;
-    }
-    .game-img { width: 100%; height: 100%; object-fit: cover; }
-    .blur-effect { filter: blur(15px); transform: scale(1.1); }
-    .btn-game { background: #333; color: white; padding: 10px 20px; border: none; border-radius: 8px; margin-top: 10px; }
+    /* --- STYLE DU MOTEUR DE JEU (Réintégré) --- */
+    #game-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
     
+    /* DUEL & FLOU */
+    .duel-container { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 220px; margin-top: 20px; position: relative; }
+    .card-wrapper { width: 48%; height: 100%; display: flex; flex-direction: column; align-items: center; }
+    .card-box { width: 100%; height: 100%; background: #000; border: 3px solid #fff; border-radius: 10px; overflow: hidden; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .card-img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.5s; }
+    .blur-effect { filter: blur(15px); transform: scale(1.1); }
+    .mystery-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px); display: flex; justify-content: center; align-items: center; cursor: pointer; }
+    .mystery-text { font-family: 'Bangers'; font-size: 50px; color: #fff; }
+    .vs-text { font-family: 'Bangers'; font-size: 40px; color: #ff0055; -webkit-text-stroke: 1px #fff; z-index: 10; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    .char-name { font-family: 'Bangers'; font-size: 16px; text-transform: uppercase; margin-top: 8px; text-align: center; line-height: 1.1; }
+
+    /* EMOJI */
+    .emoji-display { font-size: 50px; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px; text-align: center; width: 100%; }
+    .feedback-msg { font-family: 'Bangers'; font-size: 24px; margin: 10px 0; display: none; }
+    
+    /* BOUTONS JEU */
+    .btn-game-action { margin-top: 20px; padding: 12px 30px; font-family: 'Bangers'; font-size: 20px; border: 3px solid #000; box-shadow: 4px 4px 0 #000; cursor: pointer; display: none; width: 100%; border-radius: 8px; }
+    .btn-next { background: #ffcc00; color: #000; }
+    .btn-validate { background: #a855f7; color: #fff; display: block; }
+
 </style>
 </head>
 <body>
 
+    <script>const QUIZ_CONFIG = [];</script>
+    <script src="quizzes/quiz-duel.js"></script>
+    <script src="quizzes/quiz-emoji.js"></script>
+    <script src="quizzes/quiz-flou.js"></script>
+    
     <script src="data.js"></script>
+
 
     <div id="auth-screen" class="screen active" style="z-index: 2000; background: #0f0f13;">
         <div class="auth-container">
             <h1 class="auth-logo">AniQuiz</h1>
-            
-            <h3 style="margin-bottom: 15px; color: #aaa;">Choisis ton Avatar</h3>
+            <h3 style="margin-bottom: 15px; color: #aaa;">Avatar</h3>
             <div class="avatar-selector">
                 <img src="https://wallpapers.com/images/hd/one-piece-phone-j3s367d3635k4591.jpg" class="avatar-option selected" onclick="selectAvatar(this)">
-                <img src="https://i.pinimg.com/736x/8d/8a/cb/8d8acb38644400e2ba643a6d71b80bf8.jpg" class="avatar-option" onclick="selectAvatar(this)">
-                <img src="https://i.pinimg.com/564x/b8/0e/1b/b80e1b2123733056157d605175950854.jpg" class="avatar-option" onclick="selectAvatar(this)">
+                <img src="assets/luffy.jpg" class="avatar-option" onerror="this.src='https://placehold.co/100'" onclick="selectAvatar(this)">
+                <img src="assets/zoro.jpg" class="avatar-option" onerror="this.src='https://placehold.co/100'" onclick="selectAvatar(this)">
             </div>
-
-            <input type="text" id="username-input" class="input-field" placeholder="Choisis ton Pseudo">
-            <button class="btn-gradient" onclick="login()">COMMENCER L'AVENTURE</button>
+            <input type="text" id="username-input" class="input-field" placeholder="Ton Pseudo">
+            <button class="btn-gradient" onclick="login()">JOUER</button>
         </div>
     </div>
 
     <div id="home-screen" class="screen">
         <div class="header-app">
             <img id="user-avatar-display" src="" class="user-avatar-mini">
-            <div>
-                <div class="greeting">Bonjour,</div>
-                <div class="username-display" id="user-name-display">Joueur</div>
-            </div>
+            <div><div class="greeting">Bonjour,</div><div class="username-display" id="user-name-display">Joueur</div></div>
         </div>
-
-        <h2 style="font-size: 20px; margin-top: 10px;">Catégories</h2>
-        
-        <div id="quiz-grid" class="quiz-grid">
-            </div>
-
-        <h2 style="font-size: 20px; margin-top: 30px;">Jeux Spéciaux</h2>
-        <div class="quiz-grid">
-             <div class="dashboard-card card-orange">
-                <div class="card-title">Higher<br>Lower</div>
-                <div style="font-size:12px; opacity:0.8; margin-top:5px;">Bientôt disponible</div>
-                <i class="fas fa-arrow-up card-icon"></i>
-            </div>
-        </div>
+        <h2 style="font-size: 20px; margin-top: 10px;">Tes Quiz</h2>
+        <div id="quiz-grid" class="quiz-grid"></div>
     </div>
 
     <div id="game-screen" class="screen">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <button onclick="goHome()" style="background:none; border:none; color:white; font-size:20px;"><i class="fas fa-arrow-left"></i></button>
-            <h3 id="game-title-display">Quiz</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
+            <button onclick="quitGame()" style="background:none; border:none; color:white; font-size:20px;"><i class="fas fa-arrow-left"></i></button>
+            <h3 id="game-title-display">Jeu</h3>
             <div style="width:20px;"></div>
         </div>
-
-        <div class="game-container" id="game-content">
-            <div id="question-area" style="text-align:center; margin-top:50px;">
-                Chargement...
-            </div>
-        </div>
+        
+        <div id="game-content"></div>
     </div>
 
     <div id="profile-screen" class="screen">
-        <div class="profile-header">
-            <img id="profile-pic-large" src="" class="profile-pic-large">
-            <h2 id="profile-name-large">Pseudo</h2>
-            <p style="color:#a855f7; font-weight:600;">Niveau 1</p>
+        <div style="text-align:center; padding:30px; background:#1e1e24; border-radius:20px;">
+            <img id="profile-pic-large" src="" style="width:100px; height:100px; border-radius:50%; border:4px solid #a855f7;">
+            <h2 id="profile-name-large" style="margin-top:10px;">Pseudo</h2>
         </div>
-
-        <div style="background:#1e1e24; padding:15px; border-radius:12px; display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span>Parties jouées</span>
-            <span style="font-weight:bold;">0</span>
-        </div>
-        <div style="background:#1e1e24; padding:15px; border-radius:12px; display:flex; justify-content:space-between;">
-            <span>Meilleur Score</span>
-            <span style="font-weight:bold; color:#ec4899;">0</span>
-        </div>
-        
-        <button class="btn-gradient" style="margin-top:30px; background:#333;" onclick="logout()">Se Déconnecter</button>
+        <button class="btn-gradient" style="margin-top:30px; background:#333;" onclick="location.reload()">Déconnexion</button>
     </div>
 
     <nav class="bottom-nav" id="bottom-nav" style="display:none;">
-        <div class="nav-item active" onclick="switchTab('home-screen', this)">
-            <i class="fas fa-home"></i>
-            <span>Accueil</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('home-screen', this)">
-            <i class="fas fa-trophy"></i>
-            <span>Ranking</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('profile-screen', this)">
-            <i class="fas fa-user"></i>
-            <span>Profil</span>
-        </div>
+        <div class="nav-item active" onclick="switchTab('home-screen', this)"><i class="fas fa-home"></i><span>Accueil</span></div>
+        <div class="nav-item" onclick="switchTab('profile-screen', this)"><i class="fas fa-user"></i><span>Profil</span></div>
     </nav>
 
 <script>
-    // --- GESTION UTILISATEUR (SIMULÉE LOCALEMENT) ---
+    // --- 1. GESTION UTILISATEUR ---
     let currentUser = { name: "Invité", avatar: "" };
     let selectedAvatarSrc = "https://wallpapers.com/images/hd/one-piece-phone-j3s367d3635k4591.jpg";
 
     function selectAvatar(img) {
         document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
-        img.classList.add('selected');
-        selectedAvatarSrc = img.src;
+        img.classList.add('selected'); selectedAvatarSrc = img.src;
     }
-
     function login() {
-        const pseudo = document.getElementById('username-input').value;
-        if (!pseudo) return alert("Choisis un pseudo !");
-        
-        // Sauvegarder (Simulation)
-        currentUser.name = pseudo;
-        currentUser.avatar = selectedAvatarSrc;
-
-        // Mise à jour de l'interface
+        const pseudo = document.getElementById('username-input').value || "Pirate";
+        currentUser.name = pseudo; currentUser.avatar = selectedAvatarSrc;
         document.getElementById('user-name-display').innerText = currentUser.name;
         document.getElementById('user-avatar-display').src = currentUser.avatar;
-        
         document.getElementById('profile-name-large').innerText = currentUser.name;
         document.getElementById('profile-pic-large').src = currentUser.avatar;
-
-        // Afficher l'app
+        
         document.getElementById('auth-screen').classList.remove('active');
         document.getElementById('bottom-nav').style.display = 'flex';
-        switchTab('home-screen', document.querySelector('.nav-item')); // Aller à l'accueil
+        switchTab('home-screen', document.querySelector('.nav-item'));
     }
 
-    function logout() {
-        location.reload(); // Pour l'instant on recharge la page
+    // --- 2. NAVIGATION ---
+    function switchTab(id, navItem) {
+        document.querySelectorAll('.screen').forEach(s => { if(s.id!=='auth-screen') s.classList.remove('active'); });
+        document.getElementById(id).classList.add('active');
+        if(navItem) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); navItem.classList.add('active'); }
     }
+    function quitGame() { switchTab('home-screen'); document.getElementById('bottom-nav').style.display = 'flex'; }
 
-    // --- NAVIGATION ---
-    function switchTab(screenId, navItem) {
-        // Cacher tous les écrans
-        document.querySelectorAll('.screen').forEach(s => {
-            if(s.id !== 'auth-screen') s.classList.remove('active');
-        });
-        
-        // Afficher le bon
-        document.getElementById(screenId).classList.add('active');
-
-        // Gérer les icônes actives
-        if (navItem) {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            navItem.classList.add('active');
-        }
-    }
-
-    function goHome() {
-        switchTab('home-screen');
-        // Réactiver l'icone Home
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.querySelector('.nav-item').classList.add('active');
-    }
-
-
-    // --- CHARGEMENT DES QUIZ DEPUIS DATA.JS ---
-    const gridContainer = document.getElementById('quiz-grid');
-    
-    // On attend que data.js soit chargé
+    // --- 3. CHARGEMENT MENU ---
+    const grid = document.getElementById('quiz-grid');
     window.onload = () => {
-        if(typeof QUIZ_CONFIG !== 'undefined') {
-            QUIZ_CONFIG.forEach((quiz, index) => {
-                // Choix de la couleur selon l'index (pour varier)
-                const colors = ['card-purple', 'card-pink', 'card-blue'];
-                const colorClass = colors[index % colors.length];
-
-                const card = document.createElement('div');
-                card.className = `dashboard-card ${colorClass}`;
-                card.innerHTML = `
-                    <div class="card-title">${quiz.title}</div>
-                    <div style="font-size:12px; opacity:0.8; margin-top:5px; color:#fff;">${quiz.tag || 'Quiz'}</div>
-                    <div style="font-size:30px; margin-top:auto;">${quiz.icon}</div>
-                    <i class="fas fa-play card-icon"></i>
-                `;
-                card.onclick = () => launchGame(quiz.id);
-                gridContainer.appendChild(card);
-            });
+        // Petite sécurité si QUIZ_CONFIG est vide
+        if(typeof QUIZ_CONFIG === 'undefined' || QUIZ_CONFIG.length === 0) {
+             grid.innerHTML = "<p style='text-align:center; margin-top:20px;'>Aucun quiz trouvé.<br>Vérifie data.js !</p>";
+             return;
         }
-    };
-
-    // --- MOTEUR DE JEU SIMPLIFIÉ (Connexion avec ton ancien moteur) ---
-    // Pour cet exemple, je montre comment lancer l'interface
-    // Il faudra remettre ta logique de jeu précise ici
-    function launchGame(quizId) {
-        // Cacher le menu du bas pendant le jeu
-        document.getElementById('bottom-nav').style.display = 'none';
-        
-        // Afficher l'écran de jeu
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('game-screen').classList.add('active');
-
-        // Récupérer la config
-        const quiz = QUIZ_CONFIG.find(q => q.id === quizId);
-        document.getElementById('game-title-display').innerText = quiz.title;
-        
-        // ICI : Intégrer ta logique startQuiz(quizId) existante
-        // Pour l'instant, message temporaire :
-        const gameContent = document.getElementById('game-content');
-        gameContent.innerHTML = `
-            <div style="text-align:center; padding:20px;">
-                <h2 style="margin-bottom:20px;">${quiz.title}</h2>
-                <p>Le moteur de jeu va se lancer ici...</p>
-                <button class="btn-gradient" onclick="startQuiz('${quiz.id}')">JOUER</button>
-            </div>
-        `;
+        QUIZ_CONFIG.forEach((quiz, i) => {
+            const colors = ['card-purple', 'card-pink', 'card-blue'];
+            const div = document.createElement('div');
+            div.className = `dashboard-card ${colors[i % 3]}`;
+            div.innerHTML = `<div class="card-title">${quiz.title}</div><div style="font-size:12px; opacity:0.8;">${quiz.tag||'Quiz'}</div><div style="font-size:30px; margin-top:auto;">${quiz.icon}</div><i class="fas fa-play card-icon"></i>`;
+            div.onclick = () => launchGame(quiz.id);
+            grid.appendChild(div);
+        });
     }
 
-    // Fonction "Pont" pour utiliser ton ancien code
-    // Copie ici ta fonction startQuiz modifiée pour cibler la div 'game-content'
-    // ...
+    // --- 4. LE MOTEUR DE JEU (LA FUSION !) ---
+    let currentQuiz = null; 
+    let activeQuestions = []; 
+    let qIndex = 0;
+
+    function launchGame(id) {
+        document.getElementById('bottom-nav').style.display = 'none';
+        switchTab('game-screen');
+        
+        currentQuiz = QUIZ_CONFIG.find(q => q.id === id);
+        document.getElementById('game-title-display').innerText = currentQuiz.title;
+        qIndex = 0;
+
+        // PRÉPARATION DES QUESTIONS
+        let pool = [...currentQuiz.pool].sort(() => Math.random() - 0.5);
+        const gameContent = document.getElementById('game-content');
+        gameContent.innerHTML = ""; // On vide l'ancien jeu
+
+        // -- LOGIQUE DUEL OU FLOU --
+        if (currentQuiz.type === "duel" || currentQuiz.type === "blur" || currentQuiz.type === "image") {
+            const roles = currentQuiz.roles || ["ROUND 1", "ROUND 2", "ROUND 3", "ROUND 4", "ROUND 5"];
+            activeQuestions = [];
+            for(let i=0; i<roles.length; i++){
+                if(pool.length < 2) break;
+                activeQuestions.push({ title: roles[i], left: pool.pop(), right: pool.pop() });
+            }
+
+            // INJECTION DU HTML DUEL
+            gameContent.innerHTML = `
+                <div style="text-align:center; margin-bottom:10px; font-family:'Bangers'; font-size:24px; color:#ffcc00;" id="roundTitle">ROUND</div>
+                <div class="duel-container">
+                    <div class="card-wrapper"><div class="card-box"><img id="img-left" src="" class="card-img"></div><div class="char-name" id="name-left">...</div></div>
+                    <div class="vs-text">VS</div>
+                    <div class="card-wrapper"><div class="card-box" onclick="revealCard()"><img id="img-right" src="" class="card-img"><div class="mystery-overlay" id="overlay-right"><div class="mystery-text">?</div></div></div><div class="char-name" id="name-right">???</div></div>
+                </div>
+                <button class="btn-game-action btn-next" id="btn-next" onclick="nextRound()">SUIVANT ▶</button>
+            `;
+            loadDuelQuestion();
+
+        // -- LOGIQUE EMOJI --
+        } else if (currentQuiz.type === "emoji") {
+            activeQuestions = pool.slice(0, currentQuiz.count || 5);
+            
+            // INJECTION DU HTML EMOJI
+            gameContent.innerHTML = `
+                <div style="text-align:center; margin-bottom:10px; font-family:'Bangers'; font-size:24px; color:#ffcc00;" id="roundTitle">Question 1</div>
+                <div class="emoji-display" id="emoji-text">???</div>
+                <input type="text" id="user-input" class="input-field" placeholder="C'est qui ?" style="text-align:center; text-transform:uppercase;">
+                <button class="btn-game-action btn-validate" id="btn-val" onclick="checkEmoji()">VALIDER</button>
+                <div id="feedback-area" style="text-align:center; width:100%;">
+                    <div class="feedback-msg" id="msg-correct" style="color:#4eff3b;">✅ BRAVO !</div>
+                    <div class="feedback-msg" id="msg-wrong" style="color:#ff0055;">❌ RATÉ...</div>
+                    <div id="solution-text" style="color:#ffcc00; font-family:'Bangers'; font-size:20px; display:none; margin-bottom:10px;"></div>
+                    <button class="btn-game-action btn-next" id="btn-next" onclick="nextRound()">SUIVANT ▶</button>
+                </div>
+            `;
+            loadEmojiQuestion();
+        }
+    }
+
+    // --- FONCTIONS DUEL ---
+    function loadDuelQuestion() {
+        if(qIndex >= activeQuestions.length) { alert("Terminé !"); quitGame(); return; }
+        const data = activeQuestions[qIndex];
+        document.getElementById('roundTitle').innerText = data.title;
+        
+        const imgL = document.getElementById('img-left');
+        const imgR = document.getElementById('img-right');
+        
+        imgL.src = data.left.img; 
+        document.getElementById('name-left').innerText = data.left.name;
+        
+        imgR.src = data.right.img; 
+        document.getElementById('name-right').innerText = "???"; 
+        document.getElementById('name-right').style.opacity = "0.5";
+        
+        // Reset UI
+        document.getElementById('overlay-right').style.display = 'flex';
+        document.getElementById('btn-next').style.display = 'none';
+        
+        // GESTION FLOU
+        imgL.className = 'card-img'; imgR.className = 'card-img'; // Reset classes
+        if(currentQuiz.type === 'blur') {
+            imgL.classList.add('blur-effect');
+            imgR.classList.add('blur-effect');
+        }
+        // Sauvegarde nom caché
+        document.getElementById('game-screen').dataset.hiddenName = data.right.name;
+    }
+
+    function revealCard() {
+        document.getElementById('overlay-right').style.display = 'none';
+        document.getElementById('name-right').innerText = document.getElementById('game-screen').dataset.hiddenName;
+        document.getElementById('name-right').style.opacity = "1";
+        
+        if(currentQuiz.type === 'blur') document.getElementById('img-right').classList.remove('blur-effect');
+        
+        document.getElementById('btn-next').style.display = 'block';
+    }
+
+    // --- FONCTIONS EMOJI ---
+    function loadEmojiQuestion() {
+        if(qIndex >= activeQuestions.length) { alert("Terminé !"); quitGame(); return; }
+        const data = activeQuestions[qIndex];
+        document.getElementById('roundTitle').innerText = `QUESTION ${qIndex+1} / ${activeQuestions.length}`;
+        document.getElementById('emoji-text').innerText = data.emojis;
+        
+        const input = document.getElementById('user-input');
+        input.value = ""; input.disabled = false;
+        document.getElementById('btn-val').style.display = 'block';
+        document.getElementById('feedback-area').querySelectorAll('div').forEach(d => d.style.display='none');
+        document.getElementById('btn-next').style.display = 'none';
+    }
+
+    function checkEmoji() {
+        const input = document.getElementById('user-input');
+        const val = input.value.trim().toLowerCase();
+        const data = activeQuestions[qIndex];
+        
+        document.getElementById('btn-val').style.display = 'none';
+        if(data.answers.includes(val)) {
+            document.getElementById('msg-correct').style.display = 'block';
+        } else {
+            document.getElementById('msg-wrong').style.display = 'block';
+            const sol = document.getElementById('solution-text');
+            sol.innerText = "C'ÉTAIT : " + data.answers[0].toUpperCase();
+            sol.style.display = 'block';
+        }
+        input.disabled = true;
+        document.getElementById('btn-next').style.display = 'block';
+    }
+
+    function nextRound() {
+        qIndex++;
+        if (currentQuiz.type === 'emoji') loadEmojiQuestion();
+        else loadDuelQuestion();
+    }
+
 </script>
 </body>
 </html>
