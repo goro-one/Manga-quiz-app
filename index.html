@@ -6,399 +6,122 @@
 <title>Manga Quiz Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Komika+Axis&display=swap" rel="stylesheet">
 <style>
-    /* --- 1. DESIGN GÉNÉRAL --- */
+    /* DESIGN APP */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-    body {
-        margin: 0; padding: 0; 
-        background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
-        height: 100vh; width: 100vw; 
-        font-family: 'Komika Axis', sans-serif; 
-        color: #fff; overflow: hidden;
-        display: flex; justify-content: center; align-items: center;
-    }
-    .screen {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        display: none; flex-direction: column; align-items: center;
-        padding: 20px; overflow-y: auto;
-    }
+    body { margin: 0; padding: 0; background: #111; height: 100vh; width: 100vw; font-family: 'Komika Axis', sans-serif; color: #fff; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+    .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
     .screen.active { display: flex; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* MENU */
     #menu-screen { background: url('https://wallpapers.com/images/hd/one-piece-phone-j3s367d3635k4591.jpg') center/cover no-repeat; background-color: #222; }
-    .menu-overlay { background: rgba(0,0,0,0.85); width: 100%; height: 100%; position: absolute; top:0; left:0; z-index:0; }
     .menu-content { z-index: 1; width: 100%; max-width: 400px; text-align: center; margin-top: 50px;}
-    .app-title {
-        font-family: 'Bangers'; font-size: 50px; color: #ffcc00;
-        -webkit-text-stroke: 2px #000; text-shadow: 4px 4px 0 #ff0055;
-        margin-bottom: 30px; line-height: 1; transform: rotate(-3deg);
-    }
-    .quiz-card {
-        background: #fff; border: 4px solid #000; 
-        margin-bottom: 15px; padding: 15px; border-radius: 10px;
-        box-shadow: 5px 5px 0 #000; transform: skew(-3deg);
-        cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: space-between;
-    }
+    .menu-overlay { background: rgba(0,0,0,0.85); width: 100%; height: 100%; position: absolute; top:0; left:0; z-index:0; }
+    .app-title { font-family: 'Bangers'; font-size: 50px; color: #ffcc00; -webkit-text-stroke: 2px #000; text-shadow: 4px 4px 0 #ff0055; margin-bottom: 30px; line-height: 1; transform: rotate(-3deg); }
+    .quiz-card { background: #fff; border: 4px solid #000; margin-bottom: 15px; padding: 15px; border-radius: 10px; box-shadow: 5px 5px 0 #000; transform: skew(-3deg); cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: space-between; }
     .quiz-card:active { transform: skew(-3deg) scale(0.95); }
     .quiz-info h3 { color: #000; margin: 0; font-family: 'Bangers'; font-size: 22px; text-align: left; line-height: 1.1;}
     .quiz-tag { background: #ff0055; color: #fff; padding: 2px 8px; font-size: 12px; border-radius: 4px; display: inline-block; margin-bottom: 5px;}
     .quiz-icon { font-size: 30px; margin-right: 15px; }
 
-    /* JEU COMMUN */
+    /* JEU */
     #game-screen { background: #333; transition: background 0.5s; }
     .header-zone { margin-bottom: 10px; text-align: center; width: 100%; max-width: 500px; position: relative; z-index: 10;}
     .game-title { font-family: 'Bangers'; font-size: 28px; color: #ffcc00; -webkit-text-stroke: 1px #000; margin-top: 40px; }
-    .btn-back {
-        position: absolute; top: 15px; left: 15px; 
-        background: rgba(0,0,0,0.6); border: 2px solid #fff; color: #fff;
-        padding: 8px 12px; font-family: 'Komika Axis'; font-size: 14px; z-index: 100;
-        cursor: pointer; border-radius: 5px;
-    }
-    .btn-action {
-        margin-top: 20px; padding: 10px 30px; font-family: 'Bangers'; font-size: 20px;
-        border: 3px solid #000; box-shadow: 4px 4px 0 #000; cursor: pointer;
-        display: none; width: 80%; max-width: 300px;
-    }
+    .btn-back { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 2px solid #fff; color: #fff; padding: 8px 12px; font-family: 'Komika Axis'; font-size: 14px; z-index: 100; cursor: pointer; border-radius: 5px; }
+    .btn-action { margin-top: 20px; padding: 10px 30px; font-family: 'Bangers'; font-size: 20px; border: 3px solid #000; box-shadow: 4px 4px 0 #000; cursor: pointer; display: none; width: 80%; max-width: 300px; }
     .btn-next { background: #ffcc00; color: #000; }
     .btn-retry { background: #fff; color: #000; margin-right: 10px; display: inline-block; width: auto; }
     .btn-reveal { background: #ff0055; color: #fff; display: inline-block; width: auto; }
 
-    /* --- MODE 1 : DUEL (Images) --- */
+    /* DUEL */
     #mode-duel { display: none; width: 100%; flex-direction: column; align-items: center; }
     .duel-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 400px; height: 220px; margin-top: 20px;}
     .card-wrapper { width: 45%; height: 100%; display: flex; flex-direction: column; align-items: center; }
     .card-box { width: 100%; height: 100%; background: #000; border: 3px solid #fff; border-radius: 8px; overflow: hidden; position: relative; }
     .card-img { width: 100%; height: 100%; object-fit: cover; }
     .vs-text { font-family: 'Bangers'; font-size: 40px; color: #ff0055; -webkit-text-stroke: 1px #fff; z-index: 10; }
-    .mystery-overlay { 
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-        background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px);
-        display: flex; justify-content: center; align-items: center; cursor: pointer;
-    }
+    .mystery-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px); display: flex; justify-content: center; align-items: center; cursor: pointer; }
     .char-name { font-family: 'Bangers'; font-size: 18px; text-transform: uppercase; margin-top: 5px; text-shadow: 2px 2px 0 #000; }
 
-    /* --- MODE 2 : EMOJI (Texte) --- */
+    /* EMOJI */
     #mode-emoji { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; }
-    .emoji-display {
-        font-size: 60px; margin: 30px 0; padding: 20px;
-        background: rgba(255,255,255,0.1); border-radius: 15px; border: 2px dashed rgba(255,255,255,0.3);
-        text-align: center; width: 100%; min-height: 120px; display: flex; justify-content: center; align-items: center;
-        text-shadow: 0 4px 0 rgba(0,0,0,0.5);
-    }
-    .input-box {
-        width: 100%; padding: 15px; font-family: 'Komika Axis'; font-size: 18px; text-align: center;
-        border: 3px solid #000; border-radius: 8px; margin-bottom: 15px;
-        text-transform: uppercase;
-    }
+    .emoji-display { font-size: 60px; margin: 30px 0; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px; border: 2px dashed rgba(255,255,255,0.3); text-align: center; width: 100%; min-height: 120px; display: flex; justify-content: center; align-items: center; text-shadow: 0 4px 0 rgba(0,0,0,0.5); }
+    .input-box { width: 100%; padding: 15px; font-family: 'Komika Axis'; font-size: 18px; text-align: center; border: 3px solid #000; border-radius: 8px; margin-bottom: 15px; text-transform: uppercase; }
     .feedback-msg { font-family: 'Bangers'; font-size: 24px; margin: 10px 0; text-shadow: 2px 2px 0 #000; display: none; }
     .correct-text { color: #4eff3b; }
     .wrong-text { color: #ff0055; }
     .solution-text { color: #ffcc00; font-size: 20px; margin-bottom: 10px; display: none; }
-
 </style>
 </head>
 <body>
+    <script src="data.js"></script>
 
-    <div id="menu-screen" class="screen active">
-        <div class="menu-overlay"></div>
-        <div class="menu-content">
-            <h1 class="app-title">MANGA<br>QUIZ HUB</h1>
-            <div id="quiz-list-container"></div>
-        </div>
-    </div>
-
-    <div id="game-screen" class="screen">
-        <button class="btn-back" onclick="showScreen('menu-screen')">⬅ MENU</button>
-
-        <div class="header-zone">
-            <div class="game-title" id="roundTitle">ROUND 1</div>
-        </div>
-
-        <div id="mode-duel">
-            <div class="duel-container">
-                <div class="card-wrapper">
-                    <div class="card-box">
-                        <img id="img-left" src="" class="card-img" onerror="this.src='https://placehold.co/200x300?text=IMG+MISSING'">
-                    </div>
-                    <div class="char-name" id="name-left">NOM</div>
-                </div>
-                <div class="vs-text">VS</div>
-                <div class="card-wrapper">
-                    <div class="card-box" onclick="revealCard()">
-                        <img id="img-right" src="" class="card-img" onerror="this.src='https://placehold.co/200x300?text=IMG+MISSING'">
-                        <div class="mystery-overlay" id="overlay-right">
-                            <div class="mystery-text">?</div>
-                        </div>
-                    </div>
-                    <div class="char-name" id="name-right">???</div>
-                </div>
-            </div>
-            <button class="btn-action btn-next" id="btn-next-duel" onclick="nextRound()">SUIVANT ▶</button>
-        </div>
-
-        <div id="mode-emoji">
-            <div class="emoji-display" id="emoji-text">👒☠️🍖</div>
-            
-            <input type="text" id="user-input" class="input-box" placeholder="C'est qui ?">
-            
-            <div id="emoji-buttons">
-                <button class="btn-action btn-next" id="btn-validate" style="display:block; width:100%;" onclick="checkEmojiAnswer()">VALIDER</button>
-            </div>
-
-            <div id="feedback-area" style="text-align:center; width: 100%;">
-                <div class="feedback-msg" id="msg-correct">✅ BONNE RÉPONSE !</div>
-                <div class="feedback-msg" id="msg-wrong">❌ MAUVAISE RÉPONSE...</div>
-                <div class="solution-text" id="solution-display">C'ÉTAIT : LUFFY</div>
-                
-                <div id="retry-buttons" style="display:none; justify-content:center; margin-top:10px;">
-                    <button class="btn-action btn-retry" onclick="resetEmojiInput()">RÉESSAYER</button>
-                    <button class="btn-action btn-reveal" onclick="showEmojiSolution()">RÉPONSE</button>
-                </div>
-                
-                <button class="btn-action btn-next" id="btn-next-emoji" onclick="nextRound()">QUESTION SUIVANTE ▶</button>
-            </div>
-        </div>
-
+    <div id="menu-screen" class="screen active"><div class="menu-overlay"></div><div class="menu-content"><h1 class="app-title">MANGA<br>QUIZ HUB</h1><div id="quiz-list-container"></div></div></div>
+    <div id="game-screen" class="screen"><button class="btn-back" onclick="showScreen('menu-screen')">⬅ MENU</button><div class="header-zone"><div class="game-title" id="roundTitle">ROUND 1</div></div>
+        <div id="mode-duel"><div class="duel-container"><div class="card-wrapper"><div class="card-box"><img id="img-left" src="" class="card-img" onerror="this.src='https://placehold.co/200x300?text=IMG+MISSING'"></div><div class="char-name" id="name-left">NOM</div></div><div class="vs-text">VS</div><div class="card-wrapper"><div class="card-box" onclick="revealCard()"><img id="img-right" src="" class="card-img" onerror="this.src='https://placehold.co/200x300?text=IMG+MISSING'"><div class="mystery-overlay" id="overlay-right"><div class="mystery-text">?</div></div></div><div class="char-name" id="name-right">???</div></div></div><button class="btn-action btn-next" id="btn-next-duel" onclick="nextRound()">SUIVANT ▶</button></div>
+        <div id="mode-emoji"><div class="emoji-display" id="emoji-text">???</div><input type="text" id="user-input" class="input-box" placeholder="C'est qui ?"><div id="emoji-buttons"><button class="btn-action btn-next" id="btn-validate" style="display:block; width:100%;" onclick="checkEmojiAnswer()">VALIDER</button></div><div id="feedback-area" style="text-align:center; width: 100%;"><div class="feedback-msg" id="msg-correct">✅ BONNE RÉPONSE !</div><div class="feedback-msg" id="msg-wrong">❌ MAUVAISE RÉPONSE...</div><div class="solution-text" id="solution-display">C'ÉTAIT : ...</div><div id="retry-buttons" style="display:none; justify-content:center; margin-top:10px;"><button class="btn-action btn-retry" onclick="resetEmojiInput()">RÉESSAYER</button><button class="btn-action btn-reveal" onclick="showEmojiSolution()">RÉPONSE</button></div><button class="btn-action btn-next" id="btn-next-emoji" onclick="nextRound()">QUESTION SUIVANTE ▶</button></div></div>
     </div>
 
 <script>
-    // ----------------------------------------------------
-    // DATA : IMAGE POOL (Ton ancienne liste)
-    // ----------------------------------------------------
-    const OP_POOL = [
-        { name: "Monkey D. Luffy", img: "luffy.jpg" }, { name: "Roronoa Zoro", img: "zoro.jpg" },
-        { name: "Nami", img: "nami.jpg" }, { name: "Usopp", img: "usopp.jpg" },
-        { name: "Sanji", img: "sanji.jpg" }, { name: "Chopper", img: "chopper.jpg" },
-        { name: "Nico Robin", img: "robin.jpg" }, { name: "Franky", img: "franky.jpg" },
-        { name: "Brook", img: "brook.jpg" }, { name: "Jinbe", img: "jinbe.jpg" },
-        { name: "Trafalgar Law", img: "law.jpg" }, { name: "Eustass Kid", img: "kid.jpg" },
-        { name: "Shanks", img: "shanks.jpg" }, { name: "Buggy", img: "buggy.jpg" },
-        { name: "Mihawk", img: "mihawk.jpg" }, { name: "Crocodile", img: "crocodile.jpg" },
-        { name: "Doflamingo", img: "doflamingo.jpg" }, { name: "Boa Hancock", img: "hancock.jpg" },
-        { name: "Whitebeard", img: "whitebeard.jpg" }, { name: "Marco", img: "marco.jpg" },
-        { name: "Ace", img: "ace.jpg" }, { name: "Sabo", img: "sabo.jpg" },
-        { name: "Blackbeard", img: "blackbeard.jpg" }, { name: "Akainu", img: "akainu.jpg" },
-        { name: "Aokiji", img: "kuzan.jpg" }, { name: "Kizaru", img: "kizaru.jpg" },
-        { name: "Fujitora", img: "fujitora.jpg" }, { name: "Kaido", img: "kaido.jpg" },
-        { name: "Big Mom", img: "bigmom.jpg" }, { name: "Yamato", img: "yamato.jpg" }
-    ];
-    const CREW_ROLES = ["CAPITAINE", "BRAS DROIT", "NAVIGATEUR", "CUISINIER", "MÉDECIN", "SNIPER", "CHARPENTIER", "MUSICIEN"];
-
-    // ----------------------------------------------------
-    // DATA : EMOJI POOL (Nouvelle liste)
-    // answers: mets toutes les orthographes acceptées (minuscules)
-    // ----------------------------------------------------
-    const EMOJI_POOL = [
-        { emojis: "👒☠️🍖", answers: ["luffy", "monkey d luffy", "mugiwara"] },
-        { emojis: "⚔️🟢🍶💤", answers: ["zoro", "roronoa zoro"] },
-        { emojis: "🍊🗺️💰🌩️", answers: ["nami"] },
-        { emojis: "🤥🎯🌱🔨", answers: ["usopp", "pipo"] },
-        { emojis: "🚬👨‍🍳🦵🔥", answers: ["sanji", "sangoro"] },
-        { emojis: "🦌🩺🍬🧢", answers: ["chopper", "tony tony chopper"] },
-        { emojis: "🖐️🌸📚🏺", answers: ["robin", "nico robin"] },
-        { emojis: "🤖🥤🔧🩲", answers: ["franky", "cutty flam"] },
-        { emojis: "💀🎻🎼☕", answers: ["brook"] },
-        { emojis: "🦈🥋🌊☀️", answers: ["jinbe", "jimbe"] },
-        { emojis: "🐯🩺💉🎩", answers: ["law", "trafalgar law"] },
-        { emojis: "🧲🦾🎸🌷", answers: ["kid", "eustass kid"] },
-        { emojis: "🔥🍩🪵🤠", answers: ["ace", "portgas d ace"] },
-        { emojis: "🎩🔥🐉🧣", answers: ["sabo"] },
-        { emojis: "🍍🐦🔵🔥", answers: ["marco"] },
-        { emojis: "🔴🤡💣🎪", answers: ["buggy", "baggy"] },
-        { emojis: "🐊⌛🚬🌵", answers: ["crocodile"] },
-        { emojis: "🦩🕶️🧶🤴", answers: ["doflamingo", "dofy"] },
-        { emojis: "🐍🗿😍👠", answers: ["hancock", "boa hancock"] },
-        { emojis: "🦅🗡️✝️🚣", answers: ["mihawk"] },
-        { emojis: "👴🌊🍪👊", answers: ["garp"] },
-        { emojis: "🍩🍡🧣🐲", answers: ["katakuri"] },
-        { emojis: "🐲🌩️👹🍶", answers: ["kaido"] },
-        { emojis: "🎂🌩️👵🏴‍☠️", answers: ["big mom", "linlin"] },
-        { emojis: "🐶👹❄️🥒", answers: ["yamato"] },
-        { emojis: "💨🚬🏍️🌫️", answers: ["smoker"] },
-        { emojis: "🐆🎩🕴️🐦", answers: ["lucci", "rob lucci"] },
-        { emojis: "🌋👊🧢⚖️", answers: ["akainu", "sakazuki"] },
-        { emojis: "❄️🚲🐧😴", answers: ["aokiji", "kuzan"] },
-        { emojis: "✨🕶️💡🐵", answers: ["kizaru", "borsalino"] },
-        { emojis: "💜🐯🎲⚔️", answers: ["fujitora", "issho"] },
-        { emojis: "🌳🐂🏠🟢", answers: ["ryokugyu", "aramaki"] },
-        { emojis: "🐳👴🎼🛤️", answers: ["laboon"] },
-        { emojis: "✂️🎩影🦇", answers: ["moria", "gecko moria"] },
-        { emojis: "🐻🐾📖👓", answers: ["kuma", "bartholomew kuma"] },
-        { emojis: "🤴👑❌🌍", answers: ["imu", "im"] },
-        { emojis: "🐘🗡️🌫️🏜️", answers: ["jack"] },
-        { emojis: "🦕🦠🎻🤒", answers: ["queen"] },
-        { emojis: "🦖🔥🗡️👑", answers: ["king"] },
-        { emojis: "🐰⚡🥕🌕", answers: ["carrot"] },
-        { emojis: "🦠🍏🥧🧔", answers: ["blackbeard", "barbe noire", "teach"] },
-        { emojis: "🔱👴🍶🌍", answers: ["whitebeard", "barbe blanche", "newgate"] },
-        { emojis: "👑🏴‍☠️🧔⚔️", answers: ["roger", "gold roger"] },
-        { emojis: "👓🗡️🥈👑", answers: ["rayleigh"] },
-        { emojis: "👻☂️🏰👸", answers: ["perona"] },
-        { emojis: "⚡🍎👂🌝", answers: ["enel", "ener"] },
-        { emojis: "🦠🤢👨‍⚕️🍏", answers: ["doc q"] },
-        { emojis: "🤥🤥🤥🤥", answers: ["usopp"] },
-        { emojis: "🍬🍭👅🎩", answers: ["perospero"] },
-        { emojis: "🗡️🗡️🗡️🗡️", answers: ["hatchan"] },
-        { emojis: "🦵🦵💎🍗", answers: ["blue gilly"] },
-        { emojis: "🛡️🐓🟢😬", answers: ["bartolomeo"] },
-        { emojis: "🐴💤🤴🌹", answers: ["cavendish", "hakuba"] },
-        { emojis: "🌸🍡👘🗡️", answers: ["kinemon"] },
-        { emojis: "🎨🖌️🌩️🎎", answers: ["kanjuro"] },
-        { emojis: "🐈🔫🌙🐵", answers: ["nekomamushi"] },
-        { emojis: "🐕🗡️☀️🦴", answers: ["inuarashi"] },
-        { emojis: "🏯🐉👘🔞", answers: ["momonosuke"] },
-        { emojis: "👶🧪🍬🍭", answers: ["caesar", "caesar clown"] },
-        { emojis: "🦊🥊💨🏁", answers: ["foxy"] },
-        { emojis: "🧼🚿🐑👵", answers: ["kalifa"] },
-        { emojis: "🦒🗡️🧱🏗️", answers: ["kaku"] },
-        { emojis: "🐺🍽️🍜👖", answers: ["jabru"] }
-    ];
-
-    // ----------------------------------------------------
-    // CONFIGURATION DES QUIZ
-    // ----------------------------------------------------
-    const QUIZ_CONFIG = [
-        {
-            id: "op_crew_random",
-            type: "duel",
-            title: "COMPOSE TON ÉQUIPAGE",
-            icon: "🏴‍☠️",
-            bg: "linear-gradient(135deg, #006994 0%, #003366 100%)",
-            mode: "random_pool",
-            pool: OP_POOL,
-            roles: CREW_ROLES
-        },
-        {
-            id: "op_emoji_100",
-            type: "emoji",
-            title: "DEVINE LE PERSONNAGE (EMOJI)",
-            icon: "🧩",
-            bg: "linear-gradient(135deg, #4b6cb7 0%, #182848 100%)",
-            pool: EMOJI_POOL,
-            questionCount: 5
-        }
-    ];
-
-    // Variables globales
-    let currentQuizConfig = null;
-    let activeQuestions = [];
-    let currentQuestionIndex = 0;
-
-    // --- MENU ---
+    let currentQuizConfig = null; let activeQuestions = []; let currentQuestionIndex = 0;
+    
+    // CHARGEMENT AUTOMATIQUE VIA data.js
     const menuContainer = document.getElementById('quiz-list-container');
-    QUIZ_CONFIG.forEach(quiz => {
-        const btn = document.createElement('div');
-        btn.className = 'quiz-card';
-        btn.innerHTML = `
-            <div style="display:flex; align-items:center;">
-                <span class="quiz-icon">${quiz.icon}</span>
-                <div class="quiz-info">
-                    <span class="quiz-tag">${quiz.type === 'emoji' ? 'QUIZ TEXTE' : 'VISUEL'}</span>
-                    <h3>${quiz.title}</h3>
-                </div>
-            </div>
-            <div style="font-size:24px;">▶</div>
-        `;
-        btn.onclick = () => startQuiz(quiz.id);
-        menuContainer.appendChild(btn);
-    });
+    if(typeof QUIZ_CONFIG !== 'undefined') {
+        QUIZ_CONFIG.forEach(quiz => {
+            const btn = document.createElement('div');
+            btn.className = 'quiz-card';
+            btn.innerHTML = `<div style="display:flex; align-items:center;"><span class="quiz-icon">${quiz.icon}</span><div class="quiz-info"><span class="quiz-tag">${quiz.type === 'emoji' ? 'QUIZ TEXTE' : 'VISUEL'}</span><h3>${quiz.title}</h3></div></div><div style="font-size:24px;">▶</div>`;
+            btn.onclick = () => startQuiz(quiz.id);
+            menuContainer.appendChild(btn);
+        });
+    } else { menuContainer.innerHTML = "<p>Erreur: Fichier data.js introuvable ou incomplet.</p>"; }
 
-    // --- NAVIGATION ---
-    function showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-    }
+    function showScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
+    function generateRandomDuels(pool, roles) { let tempPool = [...pool].sort(() => Math.random() - 0.5); let questions = []; for (let i = 0; i < roles.length; i++) { if (tempPool.length < 2) break; questions.push({ title: roles[i], left: tempPool.pop(), right: tempPool.pop() }); } return questions; }
+    function generateRandomEmojis(pool, count) { let tempPool = [...pool].sort(() => Math.random() - 0.5); return tempPool.slice(0, count); }
 
-    // --- GÉNÉRATEURS ---
-    function generateRandomDuels(pool, roles) {
-        let tempPool = [...pool].sort(() => Math.random() - 0.5);
-        let questions = [];
-        for (let i = 0; i < roles.length; i++) {
-            if (tempPool.length < 2) break;
-            questions.push({ title: roles[i], left: tempPool.pop(), right: tempPool.pop() });
-        }
-        return questions;
-    }
-
-    function generateRandomEmojis(pool, count) {
-        let tempPool = [...pool].sort(() => Math.random() - 0.5);
-        return tempPool.slice(0, count);
-    }
-
-    // --- LANCEMENT JEU ---
     function startQuiz(quizId) {
         currentQuizConfig = QUIZ_CONFIG.find(q => q.id === quizId);
         currentQuestionIndex = 0;
         document.getElementById('game-screen').style.background = currentQuizConfig.bg;
-
-        // Reset display
         document.getElementById('mode-duel').style.display = "none";
         document.getElementById('mode-emoji').style.display = "none";
-
-        if (currentQuizConfig.type === "duel") {
-            document.getElementById('mode-duel').style.display = "flex";
-            activeQuestions = generateRandomDuels(currentQuizConfig.pool, currentQuizConfig.roles);
-        } else if (currentQuizConfig.type === "emoji") {
-            document.getElementById('mode-emoji').style.display = "flex";
-            activeQuestions = generateRandomEmojis(currentQuizConfig.pool, currentQuizConfig.questionCount);
-        }
-
-        loadQuestion();
-        showScreen('game-screen');
+        if (currentQuizConfig.type === "duel") { document.getElementById('mode-duel').style.display = "flex"; activeQuestions = generateRandomDuels(currentQuizConfig.pool, currentQuizConfig.roles); } 
+        else if (currentQuizConfig.type === "emoji") { document.getElementById('mode-emoji').style.display = "flex"; activeQuestions = generateRandomEmojis(currentQuizConfig.pool, currentQuizConfig.questionCount); }
+        loadQuestion(); showScreen('game-screen');
     }
 
     function loadQuestion() {
-        if (currentQuestionIndex >= activeQuestions.length) {
-            alert("Quiz Terminé !");
-            showScreen('menu-screen');
-            return;
-        }
-
+        if (currentQuestionIndex >= activeQuestions.length) { alert("Quiz Terminé !"); showScreen('menu-screen'); return; }
         const data = activeQuestions[currentQuestionIndex];
-        
-        // Mettre à jour le titre
-        document.getElementById('roundTitle').innerText = 
-            (currentQuizConfig.type === "duel") ? data.title : `QUESTION ${currentQuestionIndex + 1} / ${activeQuestions.length}`;
-
-        if (currentQuizConfig.type === "duel") {
-            loadDuel(data);
-        } else {
-            loadEmoji(data);
-        }
+        document.getElementById('roundTitle').innerText = (currentQuizConfig.type === "duel") ? data.title : `QUESTION ${currentQuestionIndex + 1} / ${activeQuestions.length}`;
+        if (currentQuizConfig.type === "duel") loadDuel(data); else loadEmoji(data);
     }
 
-    // --- LOGIQUE DUEL ---
     function loadDuel(data) {
-        document.getElementById('overlay-right').style.display = 'flex';
-        document.getElementById('btn-next-duel').style.display = 'none';
-        
-        document.getElementById('img-left').src = data.left.img;
-        document.getElementById('name-left').innerText = data.left.name;
-        
-        document.getElementById('img-right').src = data.right.img;
-        document.getElementById('name-right').innerText = "???";
-        document.getElementById('name-right').style.opacity = "0.5";
+        document.getElementById('overlay-right').style.display = 'flex'; document.getElementById('btn-next-duel').style.display = 'none';
+        document.getElementById('img-left').src = data.left.img; document.getElementById('name-left').innerText = data.left.name;
+        document.getElementById('img-right').src = data.right.img; document.getElementById('name-right').innerText = "???"; document.getElementById('name-right').style.opacity = "0.5";
         document.getElementById('game-screen').dataset.hiddenName = data.right.name;
     }
+    function revealCard() { document.getElementById('overlay-right').style.display = 'none'; document.getElementById('name-right').innerText = document.getElementById('game-screen').dataset.hiddenName; document.getElementById('name-right').style.opacity = "1"; document.getElementById('btn-next-duel').style.display = 'block'; }
 
-    function revealCard() {
-        document.getElementById('overlay-right').style.display = 'none';
-        document.getElementById('name-right').innerText = document.getElementById('game-screen').dataset.hiddenName;
-        document.getElementById('name-right').style.opacity = "1";
-        document.getElementById('btn-next-duel').style.display = 'block';
-    }
-
-    // --- LOGIQUE EMOJI ---
     function loadEmoji(data) {
         document.getElementById('emoji-text').innerText = data.emojis;
-        
-        // Reset Inputs
-        const input = document.getElementById('user-input');
-        input.value = "";
-        input.disabled = false;
-        input.focus(); // Ouvre le clavier si possible
-        
-        // Reset UI Feedback
-        document.getElementById('msg-correct').style.display = "none";
-        document.getElementById('msg-wrong').style.display = "none";
-        document.getElementById('solution-display').style.disp
+        const input = document.getElementById('user-input'); input.value = ""; input.disabled = false;
+        document.getElementById('msg-correct').style.display = "none"; document.getElementById('msg-wrong').style.display = "none"; document.getElementById('solution-display').style.display = "none"; document.getElementById('retry-buttons').style.display = "none"; document.getElementById('btn-next-emoji').style.display = "none"; document.getElementById('btn-validate').style.display = "block";
+    }
+    function checkEmojiAnswer() {
+        const input = document.getElementById('user-input'); const userVal = input.value.trim().toLowerCase(); const currentData = activeQuestions[currentQuestionIndex];
+        document.getElementById('btn-validate').style.display = "none";
+        if (currentData.answers.includes(userVal)) { document.getElementById('msg-correct').style.display = "block"; input.disabled = true; document.getElementById('btn-next-emoji').style.display = "block"; } 
+        else { document.getElementById('msg-wrong').style.display = "block"; document.getElementById('retry-buttons').style.display = "flex"; }
+    }
+    function resetEmojiInput() { document.getElementById('msg-wrong').style.display = "none"; document.getElementById('retry-buttons').style.display = "none"; document.getElementById('btn-validate').style.display = "block"; const input = document.getElementById('user-input'); input.value = ""; input.focus(); }
+    function showEmojiSolution() { const currentData = activeQuestions[currentQuestionIndex]; document.getElementById('msg-wrong').style.display = "none"; document.getElementById('retry-buttons').style.display = "none"; const solDiv = document.getElementById('solution-display'); solDiv.innerText = "LA RÉPONSE ÉTAIT : " + currentData.answers[0].toUpperCase(); solDiv.style.display = "block"; document.getElementById('user-input').disabled = true; document.getElementById('btn-next-emoji').style.display = "block"; }
+    function nextRound() { currentQuestionIndex++; loadQuestion(); }
+</script>
+</body>
+</html>
